@@ -8,7 +8,7 @@ from scipy import stats
 import yfinance as yf
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-import seaborn as sns; sns.set() # not sure if this one is actually needed, review required
+import seaborn as sns; sns.set()
 from forex_python.converter import CurrencyRates
 import xlsxwriter as xlsx
 import os
@@ -94,9 +94,7 @@ def emailWithAttachment(subject, email_receiver, email_receiver_name,  filename)
     message['To'] = email_receiver
     message['Subject'] = subject
     message.attach(MIMEText(emailText, "plain"))
-    
-    #filename = "./2023-12-05/ADBE_2023-09-06_2023-12-05.jpg"
-    
+        
     # Open PDF file in binary mode
     
     # We assume that the file is in the directory where you run your Python script from
