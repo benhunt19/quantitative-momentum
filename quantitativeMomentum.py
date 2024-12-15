@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set()
 from forex_python.converter import CurrencyRates
-import xlsxwriter as xlsx
 import os
 
 #email related imports
@@ -308,6 +307,77 @@ for i in range(curLen):
     finalDfFilteredOrderedLimited.loc[i, 'Currency']
     finalDfFilteredOrderedLimited.loc[i, 'Number of Shares to Buy'] = tmpAmount
 # this will return fractional shares, add math.floor when a baller with a huge portfolio 
+
+
+## ~~~~~~~~~~~~ CREATE EXCEL REPORT AND PRICE PLOTS  ~~~~~~~~~~~~~~##
+
+makeTodaysFolder() # also creates global variable of today
+fileName = f"./{today}/stock_report_{today}.xlsx"
+writer = pd.ExcelWriter(fileName , engine="xlsxwriter")
+
+# creating the top 50 sheet
+top50sheetName = 'Top 50'
+finalDfFilteredOrderedLimited50.to_excel(writer, sheet_name=top50sheetName)
+worksheet = writer.sheets[top50sheetName]
+for colnum, column in enumerate(finalDfFilteredOrderedLimited50.columns):
+    len(list(column))
+    worksheet.set_column(colnum + 1, colnum + 1, len(list(column)) + 1)
+
+
+
+# creating the individual stock sheets
+for ticker in finalDfFilteredOrderedLimited['Ticker']:
+    # iterating throuhg the top 
+    mainDf = finalDfFilteredOrderedLimited
+    mainDf.loc[mainDf['Ticker'] == ticker].to_excel(writer, sheet_name=ticker)  # Default position, cell A1.
+    worksheet = writer.sheets[ticker]
+
+    # setting column widths of the sheet
+    for colnum, column in enumerate(mainDf.columns):
+        len(list(column))
+        worksheet.set_column(colnum + 1, colnum + 1, len(list(column)) + 1)
+
+    worksheet.set_column(0,0,3)
+
+        #link  = str(mainDf.loc[mainDf.Ticker == ticker, 'Link'][0])
+        #print(link)
+        #worksheet.write(3, 0, link)
+
+    
+    for index, date in enumerate(timeFrames):
+        # creating, saving and inserting the files into the sheet
+        plt.figure(figsize=(10,4))
+        yf.Ticker(ticker).history(start=date)['Open'].plot()
+        plt.title(f'{ticker} - starting {date}')
+        plt.legend([ticker])
+        plt.ylabel(yf.Ticker(ticker).basic_info['currency'])
+        imageFileName = f"{today}/{ticker}_{date}_{today}.jpg"
+        plt.savefig(imageFileName)
+        worksheet.insert_image("A" + str(4 + 17 * index), imageFileName, {"x_scale": 0.75, "y_scale": 0.75})
+        #plt.show()
+
+
+#creating the About / Audit
+helpAuditSheetName = 'About & Audit'
+worksheet = writer.book.add_worksheet(helpAuditSheetName)
+worksheet.set_column(0,0,100)
+
+autitMessages = [
+    F'This is not financial advice',
+    f'Nuber of stocks selected to invest in: {stockLimit}',
+    f'Selected Portfolio Size (£): {portfolioSize}',
+    f'Tickers evalueted via: {wikiLink}',
+    f'Stock data added via the yFinance python library',
+    f'This was run on: {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}'
+    
+]
+
+for index, message in enumerate(autitMessages):
+    worksheet.write(index,0,message)
+
+
+writer.close()
+print('Workbook is awaiting')
 
 
 ## ~~~~~~~~~~~~~ EMAIL MAILNIG LIST ~~~~~~~~~~~~~~##
