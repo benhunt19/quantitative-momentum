@@ -17,6 +17,6 @@ This repo is for a quantitative momentum report generating program.
 **Ben Hunt**  
 [GitHub Profile](https://github.com/benhunt19)  
 [LinkedIn](https://www.linkedin.com/in/benjaminrjhunt) 
-[benhunt.click](https://benhunt.click/)
+[benhunt.click](https://benhunt.click/)  
 
 If you have any questions, feedback, or suggestions, feel free to reach out or open an issue in the repository.
